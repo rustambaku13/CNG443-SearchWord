@@ -10,7 +10,6 @@ public class WordServer {
     private ServerSocket socket = null;
     WordServer(){
       try {
-
           socket = new ServerSocket(port);
       }catch (IOException e ){
           e.printStackTrace();
@@ -28,8 +27,8 @@ public class WordServer {
                 System.out.println("Failed to establish connection");
                 e.printStackTrace();
             }
-            while(Thread.activeCount()>=maxThreads);
-            new SearchHandler(maxThreads,incoming);
+
+            new SearchHandler(maxThreads,incoming).start();
         }
 
 

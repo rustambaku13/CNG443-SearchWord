@@ -8,10 +8,12 @@ public class Client {
     public static void main(String args[]){
         try {
             Socket a = new Socket("localhost",5000);
-            Document s = new Document("Rustam","/Users/rustamquliyev/Desktop");
+            Document s = new Document("Software","/Users/rustamquliyev/Documents/Classes/x");
 
             ObjectOutputStream out = new ObjectOutputStream(a.getOutputStream());
             out.writeObject(s);
+
+
 
 
 

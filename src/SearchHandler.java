@@ -9,7 +9,6 @@ private String name;
 public SearchHandler(int maxThreads, Socket request ){
     this.maxThreads = maxThreads;
     this.request = request;
-    if(request!=null)this.start();
 }
 
 public void incrementWordCount(int word){
@@ -17,6 +16,7 @@ public void incrementWordCount(int word){
 }
 public void run(){
     try {
+        if(request==null)return;
         Thread temp =null;
         ObjectInputStream a = new ObjectInputStream(request.getInputStream());
         Document s = (Document)a.readObject();
@@ -33,9 +33,10 @@ public void run(){
           }
         }
 
-        request.close();
-        System.out.println(folder.getCanonicalPath()+"Has "+wordCount+" instances of the word:"+name);
-        System.out.println("\n\n");
+
+        //request.close();
+        System.out.println(folder.getCanonicalPath()+" has overrall "+wordCount+" instances of the word:"+name);
+        System.out.println("-------------------------------------------------");
 
     }catch (IOException e){
         e.printStackTrace();
