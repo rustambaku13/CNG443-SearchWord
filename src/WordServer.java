@@ -6,6 +6,7 @@ import java.net.Socket;
 
 public class WordServer {
     final static int port = 5000;
+    final static int maxThreads = 8;
     private ServerSocket socket = null;
     WordServer(){
       try {
@@ -27,7 +28,8 @@ public class WordServer {
                 System.out.println("Failed to establish connection");
                 e.printStackTrace();
             }
-            new SearchHandler(3,incoming);
+            while(Thread.activeCount()>=maxThreads);
+            new SearchHandler(maxThreads,incoming);
         }
 
 

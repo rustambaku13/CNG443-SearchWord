@@ -34,7 +34,7 @@ public class FileHandler implements Runnable{
                 {
 
                     counter++;
-                    System.out.println(word);
+
                 }
             }
         }
@@ -44,9 +44,16 @@ public class FileHandler implements Runnable{
 
     public void run(){
         int s = product();
-        synchronized (parent){
-            parent.incrementWordCount(s);
+
+        if(s!=0) {
+            try{
+                System.out.println(myfile.getCanonicalPath()+" has "+s+" instanses of the word:" + keyword);
+            }catch (IOException e ){
+                e.printStackTrace();
+            }
         }
+        parent.incrementWordCount(s);
+
 
 
     }

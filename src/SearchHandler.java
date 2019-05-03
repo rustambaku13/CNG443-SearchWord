@@ -20,27 +20,28 @@ public void run(){
         Thread temp =null;
         ObjectInputStream a = new ObjectInputStream(request.getInputStream());
         Document s = (Document)a.readObject();
+        name = s.name;
         File folder = new File(s.directory);
         File[] listOfFiles = folder.listFiles();
+        if(listOfFiles==null) {System.out.println("no files found");return;}
         for(File x: listOfFiles){
           if(x.isFile()){
-              temp = new Thread(new FileHandler(this,x,s.name));
+              temp = new Thread(new FileHandler(this,x,name));
               temp.start();
 
 
           }
         }
 
-        if(temp!=null)temp.join();
-
-
         request.close();
-        System.out.println(wordCount);
+        System.out.println(folder.getCanonicalPath()+"Has "+wordCount+" instances of the word:"+name);
+        System.out.println("\n\n");
+
     }catch (IOException e){
         e.printStackTrace();
     }catch (ClassNotFoundException e){
         e.printStackTrace();
-    }catch (InterruptedException e){
+    }catch (Exception e){
         e.printStackTrace();
     }
 }
