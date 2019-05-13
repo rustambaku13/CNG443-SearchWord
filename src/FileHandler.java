@@ -2,7 +2,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
 
-public class FileHandler implements Runnable{
+public class FileHandler extends Thread{
     private String keyword;
     private File myfile;
     private SearchHandler parent;
@@ -34,7 +34,7 @@ public class FileHandler implements Runnable{
                 {
 
                     counter++;
-                    System.out.println(word);
+
                 }
             }
         }
@@ -44,9 +44,16 @@ public class FileHandler implements Runnable{
 
     public void run(){
         int s = product();
+
         synchronized (parent){
             parent.incrementWordCount(s);
+            parent.threads--;
+            if(parent.threads==0)parent.notify();
         }
+        if(s==0)return;
+        parent.output.append(myfile.getName() + " "+s+'\n');
+
+
 
 
     }

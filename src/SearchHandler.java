@@ -1,15 +1,31 @@
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutorCompletionService;
 
 public class SearchHandler extends Thread{
 final int maxThreads;
-private int  wordCount =0;
+private int  wordCount;
 private Socket request;
+public int threads =0;
 private String name;
-public SearchHandler(int maxThreads, Socket request ){
+private String dir;
+public StringBuffer output;
+private ExecutorService executor;
+private CompletionService completion;
+public SearchHandler(int maxThreads, Socket request, ExecutorService exec) throws IOException{
     this.maxThreads = maxThreads;
+    wordCount =0;
+    output = new StringBuffer();
+    executor = exec;
     this.request = request;
-    if(request!=null)this.start();
+    if(request==null)throw new IOException();
+    completion = new ExecutorCompletionService(executor);
 }
 
 public void incrementWordCount(int word){
@@ -18,24 +34,46 @@ public void incrementWordCount(int word){
 public void run(){
     try {
         Thread temp =null;
+
         ObjectInputStream a = new ObjectInputStream(request.getInputStream());
         Document s = (Document)a.readObject();
-        File folder = new File(s.directory);
+        name  = s.getName();
+        dir = s.getDirectory();
+        File folder = new File(dir);
         File[] listOfFiles = folder.listFiles();
+        if(listOfFiles==null || folder ==null){
+            System.out.println(wordCount);
+            return;
+        };
+       // ArrayList <Thread> threads = new ArrayList<Thread>();
+        for(File x : listOfFiles){
+            if(x.isFile()){
+                threads++;
+            }
+        }
         for(File x: listOfFiles){
           if(x.isFile()){
-              temp = new Thread(new FileHandler(this,x,s.name));
-              temp.start();
+              FileHandler tmp = new FileHandler(this,x,name);
 
+              executor.execute(tmp);
+             // threads.add(tmp);
+              //completion.submit(tmp,this);
 
           }
         }
 
-        if(temp!=null)temp.join();
+
+       /* new ThreadCoordinate(this);*/
+        synchronized (this){
+            this.wait();
+        }
+       output.append("\n---------------------\nTotal is: "+wordCount+"\n---------------------\n\n");
+        System.out.println(output);
+       createFile();
 
 
-        request.close();
-        System.out.println(wordCount);
+
+
     }catch (IOException e){
         e.printStackTrace();
     }catch (ClassNotFoundException e){
@@ -43,6 +81,22 @@ public void run(){
     }catch (InterruptedException e){
         e.printStackTrace();
     }
+}
+
+public void createFile(){
+
+
+    try {
+        DataOutputStream dOut = new DataOutputStream(request.getOutputStream());
+        dOut.writeUTF(String.valueOf(output));
+        PrintWriter writer = new PrintWriter("output.txt", "UTF-8");
+        writer.println(output);
+
+        writer.close();
+    }catch (IOException e){
+        e.printStackTrace();
+    }
+
 }
 
 

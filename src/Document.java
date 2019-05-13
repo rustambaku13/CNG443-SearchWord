@@ -1,10 +1,18 @@
 import java.io.Serializable;
 
 class Document implements Serializable {
-    public String name;
-    public String directory;
+    private String name;
+    private String directory;
     Document(String name, String directory){
         this.name = name;
         this.directory = directory;
+    }
+
+    public String getDirectory() {
+        return directory;
+    }
+
+    public String getName() {
+        return name;
     }
 }
